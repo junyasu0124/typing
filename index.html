@@ -3,22 +3,26 @@
 
 <head></head>
 
-<body>
+<body style="font-family: Moralerspace Neon;">
   <h1>TITLE</h1>
 
   <div id="startPage">
-    <input id="input" type="text">
+    <textarea id="input" rows="10" cols="50" placeholder="Type here..."></textarea>
     <button id="start">Start</button>
   </div>
 
-  <div id="playPage">
-    <h3 id="text"></h3>
+  <div id="playPage" style="display: none;">
+    <div id="textArea" style="display: flex; flex-direction: row; white-space: nowrap;">
+      <h3 id="inputtedText" style="color: gray;"></h3>
+      <h3 id="currentText" style="color: black; text-decoration: underline;"></h3>
+      <h3 id="notInputtedText" style="color: black;"></h3>
+    </div>
     <button id="quit">Quit</button>
   </div>
 
-  <div id="endPage">
+  <div id="endPage" style="display: none;">
     <h3 id="score"></h3>
-    <div id="isHighScore" style="visibility: hidden; .true {visibility: visible;}"></div>
+    <div id="isNewHighScore" style="visibility: hidden;"></div>
     <h4 id="highScore"></h4>
     <h4 id="charPerSec"></h4>
     <h4 id="accuracy"></h4>

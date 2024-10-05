@@ -3,7 +3,9 @@ let playPageElement;
 let endPageElement;
 let inputElement;
 let startButtonElement;
-let textElement;
+let inputtedTextElement;
+let currentTextElement;
+let notInputtedTextElement;
 let quitButtonElement;
 let scoreElement;
 let isNewHighScoreElement;
@@ -21,9 +23,11 @@ window.onload = () => {
   playPageElement = document.getElementById('playPage');
   endPageElement = document.getElementById('endPage');
   inputElement = document.getElementById('input');
-  startButtonElement = document.getElementById('startButton');
-  textElement = document.getElementById('text');
-  quitButtonElement = document.getElementById('quitButton');
+  startButtonElement = document.getElementById('start');
+  inputtedTextElement = document.getElementById('inputtedText');
+  currentTextElement = document.getElementById('currentText');
+  notInputtedTextElement = document.getElementById('notInputtedText');
+  quitButtonElement = document.getElementById('quit');
   scoreElement = document.getElementById('score');
   isNewHighScoreElement = document.getElementById('isNewHighScore');
   highScoreElement = document.getElementById('highScore');
@@ -33,7 +37,7 @@ window.onload = () => {
   textLengthElement = document.getElementById('textLength');
   symbolLengthElement = document.getElementById('symbolLength');
   mistakeCountElement = document.getElementById('mistakeCount');
-  restartButtonElement = document.getElementById('restartButton');
+  restartButtonElement = document.getElementById('restart');
 
   startButtonElement.onclick = play;
   quitButtonElement.onclick = start;
@@ -43,7 +47,6 @@ window.onload = () => {
 };
 
 let state = 'start';
-let score = 0;
 let startDate;
 let text = '';
 let texts = [];
@@ -60,7 +63,6 @@ function start() {
   playPageElement.style.display = 'none';
   endPageElement.style.display = 'none';
 
-  score = 0;
   symbolCount = 0;
   mistakeCount = 0;
   inputElement.value = '';
@@ -77,7 +79,9 @@ function play() {
   text = inputElement.value;
   texts = text.split(newlineRegex);
   for (let i = texts.length - 1; i >= 0; i--) {
-    if (texts[i].trim() === '') {
+    texts[i] = texts[i].trim();
+    // 日本語を削除
+    if (texts[i] === '') {
       texts.splice(i, 1);
     }
   }
@@ -98,6 +102,9 @@ function end() {
   playPageElement.style.display = 'none';
   endPageElement.style.display = 'block';
 
+  const time = (new Date() - startDate) / 1000;
+  const score = Math.floor(textLength / time * 100) - mistakeCount * 10;
+
   scoreElement.textContent = score;
 
   let savedHighScore = localStorage.getItem('highScore') || 0;
@@ -105,13 +112,12 @@ function end() {
   if (isNewHighScore) {
     localStorage.setItem('highScore', score);
     savedHighScore = score;
-    isNewHighScoreElement.classList.add('true');
+    isNewHighScoreElement.style.visibility = 'visible';
   } else {
-    isNewHighScoreElement.classList.remove('true');
+    isNewHighScoreElement.style.visibility = 'hidden';
   }
   highScoreElement.textContent = savedHighScore;
 
-  const time = (new Date() - startDate) / 1000;
   const charPerSec = textLength / time;
   charPerSecElement.textContent = charPerSec.toFixed(2);
 
@@ -128,15 +134,17 @@ function end() {
 function nextLine() {
   currentLine++;
   currentIndex = 0;
-  currentText = '';
 
-  if (currentLine >= text.length) {
+  if (currentLine >= texts.length) {
     end();
     return;
   }
 
+  // TODO: 入力されたテキストをエスケープする
   let lineText = texts[currentLine];
-  textElement.innerText = lineText;
+  inputtedTextElement.innerHTML = '';
+  currentTextElement.innerHTML = lineText[0].replace(/ /g, '&nbsp;')
+  notInputtedTextElement.innerHTML = lineText.slice(1);
   textLength += lineText.length;
   symbolCount += countSymbols(lineText);
 }
@@ -149,12 +157,15 @@ window.onkeydown = (event) => {
   const key = event.key;
   if (key === texts[currentLine][currentIndex]) {
     currentIndex++;
-    currentText += key;
-    textElement.innerText = currentText + texts[currentLine].slice(currentIndex);
-
     if (currentIndex === texts[currentLine].length) {
       nextLine();
     }
+
+    inputtedTextElement.innerHTML = texts[currentLine].slice(0, currentIndex).replace(/ /g, '&nbsp;')
+    currentTextElement.innerHTML = texts[currentLine][currentIndex].replace(/ /g, '&nbsp;')
+    notInputtedTextElement.innerHTML = texts[currentLine].slice(currentIndex + 1).replace(/ /g, '&nbsp;')
+  } else {
+    mistakeCount++;
   }
 };
 
