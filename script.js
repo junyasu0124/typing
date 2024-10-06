@@ -165,6 +165,7 @@ window.onkeydown = (event) => {
     return;
   } else if (state === 'end') {
     if (event.key === ' ') {
+      event.preventDefault();
       if (event.shiftKey) {
         start(false);
       } else {
@@ -188,6 +189,8 @@ window.onkeydown = (event) => {
   } else {
     if (key.length === 1)
       mistakeCount++;
+    else if (key === 'Escape')
+      start(false);
   }
 };
 
