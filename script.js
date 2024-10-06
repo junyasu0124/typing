@@ -17,6 +17,7 @@ let textLengthElement;
 let symbolLengthElement;
 let mistakeCountElement;
 let restartButtonElement;
+let restartWithSameTextButtonElement;
 
 window.onload = () => {
   startPageElement = document.getElementById('startPage');
@@ -38,10 +39,12 @@ window.onload = () => {
   symbolLengthElement = document.getElementById('symbolLength');
   mistakeCountElement = document.getElementById('mistakeCount');
   restartButtonElement = document.getElementById('restart');
+  restartWithSameTextButtonElement = document.getElementById('restartWithSameText');
 
   startButtonElement.onclick = play;
   quitButtonElement.onclick = start;
   restartButtonElement.onclick = start;
+  restartWithSameTextButtonElement.onclick = () => start(false);
 
   start();
 };
@@ -56,16 +59,20 @@ let textLength = 0;
 let symbolCount = 0;
 let mistakeCount = 0;
 
-function start() {
+function start(clearInput = true) {
   state = 'start';
 
   startPageElement.style.display = 'block';
   playPageElement.style.display = 'none';
   endPageElement.style.display = 'none';
 
+  textLength = 0;
   symbolCount = 0;
   mistakeCount = 0;
-  inputElement.value = '';
+  if (clearInput)
+    inputElement.value = '';
+
+  inputElement.focus();
 }
 
 const newlineRegex = /\r?\n/;
@@ -151,8 +158,21 @@ function nextLine() {
 
 
 window.onkeydown = (event) => {
-  if (state !== 'play')
+  if (state === 'start') {
+    if (event.key === 'Enter' && event.shiftKey) {
+      play();
+    }
     return;
+  } else if (state === 'end') {
+    if (event.key === ' ') {
+      if (event.shiftKey) {
+        start(false);
+      } else {
+        start(true);
+      }
+    }
+    return;
+  }
 
   const key = event.key;
   if (key === texts[currentLine][currentIndex]) {
